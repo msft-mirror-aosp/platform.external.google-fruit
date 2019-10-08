@@ -151,6 +151,9 @@ add_ubuntu_tests(ubuntu_version='19.04', compiler='clang-6.0', stl='libstdc++',
 add_ubuntu_tests(ubuntu_version='19.04', compiler='clang-8.0', stl='libstdc++',
                  # Disabled due to https://bugs.llvm.org/show_bug.cgi?id=41625.
                  use_precompiled_headers_in_tests=False)
+add_ubuntu_tests(ubuntu_version='19.04', compiler='clang-8.0', stl='libc++',
+                 # Disabled due to https://bugs.llvm.org/show_bug.cgi?id=41625.
+                 use_precompiled_headers_in_tests=False)
 
 add_ubuntu_tests(ubuntu_version='18.10', compiler='gcc-8', asan=False, ubsan=False)
 add_ubuntu_tests(ubuntu_version='18.10', compiler='clang-4.0', stl='libstdc++')
@@ -163,31 +166,28 @@ add_bazel_tests(ubuntu_version='16.04')
 
 # ASan/UBSan are disabled for all these, the analysis on later versions is better anyway.
 # Also, in some combinations they wouldn't work.
-add_ubuntu_tests(ubuntu_version='14.04', compiler='gcc-5', asan=False, ubsan=False)
-add_ubuntu_tests(ubuntu_version='14.04', compiler='clang-3.5', stl='libstdc++', asan=False, ubsan=False)
-add_ubuntu_tests(ubuntu_version='14.04', compiler='clang-3.9', stl='libstdc++', asan=False, ubsan=False)
-add_ubuntu_tests(ubuntu_version='14.04', compiler='clang-3.5', stl='libc++', asan=False, ubsan=False)
-add_ubuntu_tests(ubuntu_version='14.04', compiler='clang-3.9', stl='libc++', asan=False, ubsan=False)
+add_ubuntu_tests(ubuntu_version='16.04', compiler='gcc-5', asan=False, ubsan=False)
+add_ubuntu_tests(ubuntu_version='16.04', compiler='clang-3.5', stl='libstdc++', asan=False, ubsan=False)
+add_ubuntu_tests(ubuntu_version='16.04', compiler='clang-3.9', stl='libstdc++', asan=False, ubsan=False)
 
 # Asan/Ubsan are disabled because it generates lots of warnings like:
 #    warning: direct access in [...] to global weak symbol guard variable for [...] means the weak symbol cannot be
 #    overridden at runtime. This was likely caused by different translation units being compiled with different
 #    visibility settings.
 # and the build eventually fails or times out.
-add_osx_tests(compiler='gcc-5', xcode_version='10.2', asan=False, ubsan=False)
-add_osx_tests(compiler='gcc-8', xcode_version='10.2', asan=False, ubsan=False, smoke_tests=['DebugPlain'])
-add_osx_tests(compiler='clang-4.0', xcode_version='10.2', stl='libc++')
-add_osx_tests(compiler='clang-8.0', xcode_version='10.2', stl='libc++', smoke_tests=['DebugPlain'],
+add_osx_tests(compiler='gcc-6', xcode_version='11.4', asan=False, ubsan=False)
+add_osx_tests(compiler='gcc-9', xcode_version='11.4', asan=False, ubsan=False, smoke_tests=['DebugPlain'])
+add_osx_tests(compiler='clang-4.0', xcode_version='11.4', stl='libc++')
+add_osx_tests(compiler='clang-8.0', xcode_version='11.4', stl='libc++', smoke_tests=['DebugPlain'],
               # Disabled due to https://bugs.llvm.org/show_bug.cgi?id=41625.
               use_precompiled_headers_in_tests=False)
 
 # UBSan is disabled because AppleClang does not support -fsanitize=undefined.
-add_osx_tests(compiler='clang-default', xcode_version='7.3', stl='libc++', ubsan=False)
-# UBSan is disabled because AppleClang does not support -fsanitize=undefined.
 add_osx_tests(compiler='clang-default', xcode_version='8.3', stl='libc++', ubsan=False)
 
 add_osx_tests(compiler='clang-default', xcode_version='9.4', stl='libc++')
-add_osx_tests(compiler='clang-default', xcode_version='10.2', stl='libc++', smoke_tests=['DebugPlain'])
+add_osx_tests(compiler='clang-default', xcode_version='10.3', stl='libc++', smoke_tests=['DebugPlain'])
+add_osx_tests(compiler='clang-default', xcode_version='11.4', stl='libc++', smoke_tests=['DebugPlain'])
 
 # ** Disabled combinations **
 #
