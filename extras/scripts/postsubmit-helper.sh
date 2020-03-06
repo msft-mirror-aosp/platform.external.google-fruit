@@ -87,6 +87,11 @@ clang-8.0)
     export CXX=clang++-8
     ;;
 
+clang-9.0)
+    export CC=clang-9
+    export CXX=clang++-9
+    ;;
+
 clang-default)
     export CC=clang
     export CXX=clang++
@@ -107,8 +112,8 @@ run_make() {
 if [[ "${COMPILER}" != "bazel" ]]
 then
     # This is only needed in OS X but it has no effect on Linux so we can add it unconditionally.
-    BOOST_INCLUDE_FLAG="-I /usr/local/include/boost"
-    COMMON_CXX_FLAGS="$STLARG $BOOST_INCLUDE_FLAG -Werror -pedantic"
+    BOOST_INCLUDE_FLAG="-I /usr/local/include/boost -I /usr/local/include"
+    COMMON_CXX_FLAGS="$STLARG $BOOST_INCLUDE_FLAG -Werror -pedantic -Winvalid-pch"
 
     echo CXX version: $($CXX --version)
     echo C++ Standard library location: $(echo '#include <vector>' | $CXX -x c++ -E - | grep 'vector\"' | awk '{print $3}' | sed 's@/vector@@;s@\"@@g' | head -n 1)
