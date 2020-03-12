@@ -1,5 +1,6 @@
-project(Fruit)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
+
+project(Fruit VERSION 3.4.0 LANGUAGES CXX)
 
 if (POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
@@ -16,10 +17,6 @@ option(BUILD_SHARED_LIBS "Build shared library" ON)
 
 # The Visual Studio CMake generators default to multiple configurations, but Fruit doesn't support multi-configuration build directories.
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
-
-if(NOT "${RUNTIME_OUTPUT_DIRECTORY}")
-  set(RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
 
 set(FRUIT_ADDITIONAL_CXX_FLAGS "" CACHE STRING "Additional CXX compiler flags." FORCE)
 
@@ -94,34 +91,29 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 # of the user-friendly default that hides Fruit internals).
 #add_definitions(-DFRUIT_DEEP_TEMPLATE_INSTANTIATION_STACKTRACES_FOR_ERRORS=1)
 
-set(INSTALL_INCLUDE_DIR include/fruit CACHE PATH "Installation directory for headers")
-set(INSTALL_LIBRARY_DIR lib CACHE PATH "Installation directory for libraries")
-
-set(FRUIT_VERSION "3.4.0")
+include(GNUInstallDirs)
 
 add_subdirectory(configuration)
 add_subdirectory(src)
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  # Do not exclude these from "make all" in debug mode, they must build.
-  add_subdirectory(examples)
-  add_subdirectory(tests)
-else()
-  add_subdirectory(examples EXCLUDE_FROM_ALL)
-  add_subdirectory(tests)
+if(NOT "${FRUIT_IS_BEING_BUILT_BY_CONAN}")
+  if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    # Do not exclude these from "make all" in debug mode, they must build.
+    add_subdirectory(examples)
+    add_subdirectory(tests)
+  else()
+    add_subdirectory(examples EXCLUDE_FROM_ALL)
+    add_subdirectory(tests)
+  endif()
+
+  add_subdirectory(extras EXCLUDE_FROM_ALL)
 endif()
 
-add_subdirectory(extras EXCLUDE_FROM_ALL)
-
 install(DIRECTORY include/fruit/
-  DESTINATION "${INSTALL_INCLUDE_DIR}"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fruit
   FILES_MATCHING PATTERN "*.h")
 
 set(CPACK_PACKAGE_NAME "Fruit")
 set(CPACK_PACKAGE_VENDOR "Marco Poletti")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Fruit - Dependency Injection Framework For C++")
-string(REGEX REPLACE "([^.]*)\\.([^.]*)\\.([^.]*)" "\\1" CPACK_PACKAGE_VERSION_MAJOR "${FRUIT_VERSION}")
-string(REGEX REPLACE "([^.]*)\\.([^.]*)\\.([^.]*)" "\\2" CPACK_PACKAGE_VERSION_MINOR "${FRUIT_VERSION}")
-string(REGEX REPLACE "([^.]*)\\.([^.]*)\\.([^.]*)" "\\3" CPACK_PACKAGE_VERSION_PATCH "${FRUIT_VERSION}")
-set(CPACK_PACKAGE_VERSION "${FRUIT_VERSION}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Fruit")
