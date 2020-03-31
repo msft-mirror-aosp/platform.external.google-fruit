@@ -166,7 +166,7 @@ class MsvcCompiler:
             self._compile(include_dirs, args = args)
         except CommandFailedException as e:
             # Note that we use stdout here, unlike above. MSVC reports compilation warnings and errors on stdout.
-            raise CompilationFailedException(e.command, e.stdout, e.stderr)
+            raise CompilationFailedException(e.command, e.env, e.stdout)
 
     def compile_and_link(self, source, include_dirs, output_file_name, args=[]):
         self._compile(
@@ -297,7 +297,6 @@ def expect_compile_error_helper(
         e = e1
 
     error_message = e.error_message
-    error_message_lines = error_message.splitlines()
     error_message_lines = error_message.splitlines()
     error_message_head = _cap_to_lines(error_message, 40)
 
