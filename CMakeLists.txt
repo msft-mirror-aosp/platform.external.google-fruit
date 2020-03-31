@@ -2,9 +2,20 @@ cmake_minimum_required(VERSION 3.2)
 
 project(Fruit VERSION 3.4.0 LANGUAGES CXX)
 
+set(FRUIT_IS_BEING_BUILT_BY_CONAN FALSE CACHE BOOL "This is set in Conan builds.")
+if("${FRUIT_IS_BEING_BUILT_BY_CONAN}")
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  conan_basic_setup()
+endif()
+
 if (POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
 endif()
+
+if ("${CMAKE_CXX_STANDARD}" STREQUAL "")
+    set(CMAKE_CXX_STANDARD 11)
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # CMake on OSX likes to see this set explicitly, otherwise it outputs a warning.
 set(CMAKE_MACOSX_RPATH 1)
@@ -40,7 +51,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(MSVC)$")
   # The warning C4577 is disabled because we don't need a termination guarantee on exceptions for functions marked with
   # 'noexcept'.
   # The warning C4530 is disabled because it's triggered by MSVC's STL.
-  set(FRUIT_ADDITIONAL_COMPILE_FLAGS "${FRUIT_ADDITIONAL_COMPILE_FLAGS} /nologo /FS /W4 /wd4324 /wd4709 /wd4459 /wd4141 /wd4714 /wd4577 /wd4530 /D_SCL_SECURE_NO_WARNINGS")
+  # The warning C5205 is disabled, MSVC emits it for abstract classes in example code with non-virtual destructors, but we never call delete on those (even though std::default_delete<Scaler> is instantiated for those types).
+  set(FRUIT_ADDITIONAL_COMPILE_FLAGS "${FRUIT_ADDITIONAL_COMPILE_FLAGS} /nologo /FS /W4 /wd4324 /wd4709 /wd4459 /wd4141 /wd4714 /wd4577 /wd4530 /wd5205 /D_SCL_SECURE_NO_WARNINGS")
 endif()
 
 option(FRUIT_ENABLE_COVERAGE "Enable collection of test coverage. This is meant to be used by Fruit developers. It's only supported when using GCC on Linux." OFF)
@@ -55,14 +67,19 @@ set(FRUIT_USES_BOOST TRUE CACHE BOOL
         "Whether to use Boost (specifically, boost::unordered_set and boost::unordered_map).
         If this is false, Fruit will use std::unordered_set and std::unordered_map instead (however this causes injection to be a bit slower).")
 
-set(FRUIT_IS_BEING_BUILT_BY_CONAN FALSE CACHE BOOL "This is set in Conan builds.")
+if(${FRUIT_USES_BOOST})
 
-if("${WIN32}" AND "${FRUIT_USES_BOOST}" AND NOT "${FRUIT_IS_BEING_BUILT_BY_CONAN}")
-  set(BOOST_DIR "" CACHE PATH "The directory where the boost library is installed, e.g. C:\\boost\\boost_1_62_0.")
-  if("${BOOST_DIR}" STREQUAL "")
-    message(FATAL_ERROR "Please re-run CMake, specifying the boost library path as BOOST_DIR, e.g. -DBOOST_DIR=C:\\boost\\boost_1_62_0, or specify -DFRUIT_USES_BOOST=False to not use boost.")
+  if(DEFINED BOOST_DIR)
+    message(DEPRECATION "BOOST_DIR is deprecated. Use Boost_INCLUDE_DIR instead.")
+    set(Boost_INCLUDE_DIR "${BOOST_DIR}" CACHE PATH "")
   endif()
-  include_directories("${BOOST_DIR}")
+
+  find_package(Boost)
+  if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+  else()
+    message(FATAL_ERROR "Please re-run CMake, specifying the boost library path as Boost_INCLUDE_DIR, e.g. -DBoost_INCLUDE_DIR=C:\\boost\\boost_1_62_0, or specify -DFRUIT_USES_BOOST=False to not use boost.")
+  endif()
 endif()
 
 set(RUN_TESTS_UNDER_VALGRIND FALSE CACHE BOOL "Whether to run Fruit tests under valgrind")
@@ -82,6 +99,18 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set(FRUIT_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${FRUIT_ADDITIONAL_COMPILE_FLAGS}")
 else()
     set(FRUIT_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${FRUIT_ADDITIONAL_COMPILE_FLAGS}")
+endif()
+
+set(FRUIT_CLANG_TIDY_CHECKS
+    bugprone*,-bugprone-reserved-identifier,-bugprone-exception-escape,clang-analyzer*,performance*,google*,-google-readability*,-google-runtime-references,clang-diagnostic-unused-command-line-argument,misc-macro-parentheses,-clang-diagnostic-dtor-name)
+
+set(FRUIT_ENABLE_CLANG_TIDY FALSE CACHE BOOL "Whether to run clang-tidy on the Fruit codebase during the build")
+if(${FRUIT_ENABLE_CLANG_TIDY})
+  set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;
+    -header-filter=fruit;
+    -checks=${FRUIT_CLANG_TIDY_CHECKS};
+    -warnings-as-errors=*;)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
