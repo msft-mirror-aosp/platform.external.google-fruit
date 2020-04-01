@@ -2,8 +2,15 @@
 
 set -e
 
+# These packages depend on the ones that we update but we don't care about these, we don't want to waste time upgrading
+# them.
+for p in postgis ansible libdap libspatialite gdal mercurial poppler
+do
+  brew pin $p
+done
+
 install_brew_package() {
-  time (brew install "$@" || brew outdated "$1" || brew upgrade "$@")
+  time (brew install "$@" || brew outdated "$1" || brew upgrade "$@" || true)
   # Some formulas are not linked into /usr/local by default, make sure they are.
   time (brew link --force "$@" || true)
 }
@@ -45,6 +52,9 @@ clang-9.0)
   ;;
 *) echo "Compiler not supported: ${COMPILER}. See travis_ci_install_osx.sh"; exit 1 ;;
 esac
+
+# So that we can "brew link" python@3 instead.
+brew unlink python@2
 
 install_brew_package boost
 install_brew_package python
