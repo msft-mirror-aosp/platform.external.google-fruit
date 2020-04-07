@@ -9,11 +9,11 @@ third_party {
     type: GIT
     value: "https://github.com/google/fruit.git"
   }
-  version: "2c8435f9321f5158ee6259c6552e5eb9bee5106f"
+  version: "0ac041ff302faec7c8218989c86773613a621523"
   license_type: NOTICE
   last_upgrade_date {
     year: 2020
-    month: 3
-    day: 31
+    month: 4
+    day: 1
   }
 }
