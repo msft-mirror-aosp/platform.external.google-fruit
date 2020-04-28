@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from absl.testing import parameterized
 from fruit_test_common import *
 
 COMMON_DEFINITIONS = '''
@@ -43,48 +42,47 @@ COMMON_DEFINITIONS = '''
     };
     '''
 
-class TestBasics(parameterized.TestCase):
-    def test_ImplicitCall(self):
-        source = '''
-            int main() {
-              AssertSameType(Type<int>,   Id<Select1st(Type<int>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Select2nd(Type<int>, Type<float>)>);
-              AssertSameType(Type<int>,   Id<Select1st(Type<int>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Select2nd(Type<int>, Type<float>)>);
-            }
-            '''
-        expect_success(
-            COMMON_DEFINITIONS,
-            source,
-            locals())
+def test_ImplicitCall():
+    source = '''
+        int main() {
+          AssertSameType(Type<int>,   Id<Select1st(Type<int>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Select2nd(Type<int>, Type<float>)>);
+          AssertSameType(Type<int>,   Id<Select1st(Type<int>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Select2nd(Type<int>, Type<float>)>);
+        }
+        '''
+    expect_success(
+        COMMON_DEFINITIONS,
+        source,
+        locals())
 
-    def test_Call(self):
-        source = '''
-            int main() {
-              AssertSameType(Type<int>,   Id<Call(Select1st, Type<int>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Call(Select2nd, Type<int>, Type<float>)>);
-              AssertSameType(Type<int>,   Id<Call(Select1st, Type<int>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Call(Select2nd, Type<int>, Type<float>)>);
-            }
-            '''
-        expect_success(
-            COMMON_DEFINITIONS,
-            source,
-            locals())
+def test_Call():
+    source = '''
+        int main() {
+          AssertSameType(Type<int>,   Id<Call(Select1st, Type<int>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Call(Select2nd, Type<int>, Type<float>)>);
+          AssertSameType(Type<int>,   Id<Call(Select1st, Type<int>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Call(Select2nd, Type<int>, Type<float>)>);
+        }
+        '''
+    expect_success(
+        COMMON_DEFINITIONS,
+        source,
+        locals())
 
-    def test_DeferArgs(self):
-        source = '''
-            int main() {
-              AssertSameType(Type<int>,   Id<Call(Id<Call(Id<DeferArgs(Select1st)>, Type<int>)>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Call(Id<Call(Id<DeferArgs(Select2nd)>, Type<int>)>, Type<float>)>);
-              AssertSameType(Type<int>,   Id<Call(Id<Call(Id<DeferArgs(Select1st)>, Type<int>)>, Type<float>)>);
-              AssertSameType(Type<float>, Id<Call(Id<Call(Id<DeferArgs(Select2nd)>, Type<int>)>, Type<float>)>);
-            }
-            '''
-        expect_success(
-            COMMON_DEFINITIONS,
-            source,
-            locals())
+def test_DeferArgs():
+    source = '''
+        int main() {
+          AssertSameType(Type<int>,   Id<Call(Id<Call(Id<DeferArgs(Select1st)>, Type<int>)>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Call(Id<Call(Id<DeferArgs(Select2nd)>, Type<int>)>, Type<float>)>);
+          AssertSameType(Type<int>,   Id<Call(Id<Call(Id<DeferArgs(Select1st)>, Type<int>)>, Type<float>)>);
+          AssertSameType(Type<float>, Id<Call(Id<Call(Id<DeferArgs(Select2nd)>, Type<int>)>, Type<float>)>);
+        }
+        '''
+    expect_success(
+        COMMON_DEFINITIONS,
+        source,
+        locals())
 
-if __name__ == '__main__':
-    absltest.main()
+if __name__== '__main__':
+    main(__file__)

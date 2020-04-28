@@ -202,7 +202,8 @@ because all tests will be re-run anyway.
 
 ```bash
 cd $PATH_TO_FRUIT/extras/bazel_root
-bazel test --test_output=errors \ 
+bazel test --python_path=/usr/bin/python3 \
+           --test_output=errors \ 
            --test_summary=terse \
            //third_party/fruit/...
 ```

@@ -20,19 +20,17 @@ apt-get install -y --allow-unauthenticated --no-install-recommends \
     make \
     cmake \
     libboost-dev \
-    libc++1 \
+    g++-5 \
+    clang-3.9 \
+    clang-4.0 \
     libc++-dev \
-    libc++abi1 \
-    libc++abi-dev \
     python3-pip \
     python3-setuptools \
     python3-networkx \
     dirmngr
-
-pip3 install --upgrade pip
-python3 -m pip install absl-py
-python3 -m pip install bidict
-python3 -m pip install pytest
-python3 -m pip install pytest-xdist
-python3 -m pip install sh
-python3 -m pip install wheel
+    
+pip3 install wheel
+pip3 install pytest
+pip3 install pytest-xdist
+pip3 install sh
+pip3 install bidict

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from absl.testing import parameterized
 from fruit_test_common import *
 
 COMMON_DEFINITIONS = '''
@@ -29,16 +28,15 @@ FRUIT_PUBLIC_HEADERS = [
     "provider.h",
 ]
 
-class TestHeaders(parameterized.TestCase):
-    @parameterized.parameters(FRUIT_PUBLIC_HEADERS)
-    def test_header_self_contained(self, HeaderFile):
-        source = '''
-            #include <fruit/HeaderFile>
-            '''
-        expect_success(
-            COMMON_DEFINITIONS,
-            source,
-            locals())
+@pytest.mark.parametrize('HeaderFile', FRUIT_PUBLIC_HEADERS)
+def test_header_self_contained(HeaderFile):
+    source = '''
+        #include <fruit/HeaderFile>
+        '''
+    expect_success(
+        COMMON_DEFINITIONS,
+        source,
+        locals())
 
-if __name__ == '__main__':
-    absltest.main()
+if __name__== '__main__':
+    main(__file__)

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from absl.testing import parameterized
 from fruit_test_common import *
 
 COMMON_DEFINITIONS = '''
@@ -47,25 +46,24 @@ COMMON_DEFINITIONS = '''
     using ZAnnot = fruit::Annotated<Annotation, Z>;
     '''
 
-class TestTypeAlignmentWithAnnotation(parameterized.TestCase):
-    def test_type_alignment_with_annotation(self):
-        source = '''
-            fruit::Component<XAnnot, YAnnot, ZAnnot> getComponent() {
-              return fruit::createComponent();
-            }
-            
-            int main() {
-              fruit::Injector<XAnnot, YAnnot, ZAnnot> injector(getComponent);
-              
-              injector.get<fruit::Annotated<Annotation, X*>>();
-              injector.get<fruit::Annotated<Annotation, Y*>>();
-              injector.get<fruit::Annotated<Annotation, Z*>>();
-            }
-            '''
-        expect_success(
-            COMMON_DEFINITIONS,
-            source,
-            locals())
+def test_type_alignment_with_annotation():
+    source = '''
+        fruit::Component<XAnnot, YAnnot, ZAnnot> getComponent() {
+          return fruit::createComponent();
+        }
+        
+        int main() {
+          fruit::Injector<XAnnot, YAnnot, ZAnnot> injector(getComponent);
+          
+          injector.get<fruit::Annotated<Annotation, X*>>();
+          injector.get<fruit::Annotated<Annotation, Y*>>();
+          injector.get<fruit::Annotated<Annotation, Z*>>();
+        }
+        '''
+    expect_success(
+        COMMON_DEFINITIONS,
+        source,
+        locals())
 
-if __name__ == '__main__':
-    absltest.main()
+if __name__== '__main__':
+    main(__file__)
