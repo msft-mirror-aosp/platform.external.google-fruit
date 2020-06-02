@@ -37,6 +37,11 @@ gcc-9)
     export CXX=g++-9
     ;;
 
+gcc-10)
+    export CC=gcc-10
+    export CXX=g++-10
+    ;;
+
 clang-3.5)
     export CC=clang-3.5
     export CXX=clang++-3.5
@@ -151,6 +156,8 @@ then
     ReleaseValgrindNoPchNoClangTidy) CMAKE_ARGS=(-DCMAKE_BUILD_TYPE=Release -DFRUIT_ENABLE_CLANG_TIDY=FALSE -DCMAKE_CXX_FLAGS="$COMMON_CXX_FLAGS" -DRUN_TESTS_UNDER_VALGRIND=TRUE -DFRUIT_TESTS_USE_PRECOMPILED_HEADERS=OFF) ;;
     *) echo "Error: you need to specify one of the supported postsubmit modes (see postsubmit.sh)."; exit 1 ;;
     esac
+    # Setting compilers only via env vars doesn't work when using recent versions of XCode.
+    CMAKE_ARGS+=(-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX)
 
     SOURCES_PATH="$PWD"
 
@@ -187,8 +194,12 @@ then
     make install
 else
     # COMPILER=bazel
-    
-    BAZEL_FLAGS=("--python_path=$(which python3)")
+
+    # In recent versions of Bazel (as of May 2020), --python_path is ignored unless
+    # --noincompatible_use_python_toolchains is also used.
+    # Ignoring --python_path is ok in Ubuntu 20.04 since 3.8 is the default Python there, but causes problems in docker
+    # images with older Ubuntu versions that have both 3.8 and another 3.x version installed.
+    BAZEL_FLAGS=("--python_path=$(which python3.8)" "--noincompatible_use_python_toolchains")
     case "$1" in
     DebugPlain)      ;;
     ReleasePlain)    BAZEL_FLAGS+=("-c" "opt") ;;
