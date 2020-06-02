@@ -145,19 +145,13 @@ def add_bazel_tests(ubuntu_version, smoke_tests=[]):
         build_matrix_rows.append(test_environment)
 
 
-# TODO: re-enable ASan/UBSan once they work in Travis CI. ATM (as of 18 November 2017) they fail due to https://github.com/google/sanitizers/issues/837
-add_ubuntu_tests(ubuntu_version='19.10', compiler='gcc-7', asan=False, ubsan=False)
-add_ubuntu_tests(ubuntu_version='19.10', compiler='gcc-9', asan=False, ubsan=False,
+add_ubuntu_tests(ubuntu_version='20.04', compiler='gcc-7')
+add_ubuntu_tests(ubuntu_version='20.04', compiler='gcc-10',
                  smoke_tests=['DebugPlain', 'ReleasePlain'])
-add_ubuntu_tests(ubuntu_version='19.10', compiler='clang-6.0', stl='libstdc++',
+add_ubuntu_tests(ubuntu_version='20.04', compiler='clang-6.0', stl='libstdc++',
                  smoke_tests=['DebugPlain', 'DebugAsanUbsan', 'ReleasePlain'])
-add_ubuntu_tests(ubuntu_version='19.10', compiler='clang-10.0', stl='libstdc++')
-# Using Clang 10 + libc++ doesn't work as of March 2020, it can't find STL headers.
-add_ubuntu_tests(ubuntu_version='19.10', compiler='clang-9.0', stl='libc++',
-                 # Disabled due to https://bugs.llvm.org/show_bug.cgi?id=41625.
-                 use_precompiled_headers_in_tests=False,
-                 # As of March 2020, Clang tidy segfaults and can't find STL headers (not sure if these issues are related or independent).
-                 clang_tidy=False)
+add_ubuntu_tests(ubuntu_version='20.04', compiler='clang-10.0', stl='libstdc++')
+add_ubuntu_tests(ubuntu_version='20.04', compiler='clang-10.0', stl='libc++')
 
 add_ubuntu_tests(ubuntu_version='18.04', compiler='gcc-5', asan=False, ubsan=False)
 add_ubuntu_tests(ubuntu_version='18.04', compiler='gcc-8', asan=False, ubsan=False)
@@ -192,7 +186,10 @@ add_osx_tests(compiler='clang-8.0', xcode_version='11.4', stl='libc++', smoke_te
               use_precompiled_headers_in_tests=False)
 
 add_osx_tests(compiler='clang-default', xcode_version='9.4', stl='libc++', clang_tidy=False)
-add_osx_tests(compiler='clang-default', xcode_version='11.4', stl='libc++', clang_tidy=False, smoke_tests=['DebugPlain'])
+add_osx_tests(compiler='clang-default', xcode_version='11.3', stl='libc++', clang_tidy=False,
+              # Disabled due to https://bugs.llvm.org/show_bug.cgi?id=41625.
+              use_precompiled_headers_in_tests=False,
+              smoke_tests=['DebugPlain'])
 
 # ** Disabled combinations **
 #
