@@ -402,7 +402,7 @@ template <int numAssistedBefore, int numNonAssistedBefore, typename Arg>
 struct GetAssistedArg<numAssistedBefore, numNonAssistedBefore, Assisted<Arg>> {
   template <typename InjectedArgsTuple, typename UserProvidedArgsTuple>
   inline Arg operator()(InjectedArgsTuple&, UserProvidedArgsTuple& user_provided_args) {
-    return std::get<numAssistedBefore>(user_provided_args);
+    return std::move(std::get<numAssistedBefore>(user_provided_args));
   }
 };
 
@@ -437,9 +437,9 @@ struct RegisterFactoryHelper {
       using Result = Eval<R>;
       void operator()(FixedSizeVector<ComponentStorageEntry>& entries) {
         auto function_provider = [](NakedInjectedArgs... args) {
-          auto injected_args = std::make_tuple(args...);
-          auto object_provider = [injected_args](NakedUserProvidedArgs... params) mutable {
-            auto user_provided_args = std::tie(params...);
+          std::tuple<NakedInjectedArgs...> injected_args{args...};
+          auto object_provider = [=](NakedUserProvidedArgs... params) mutable {
+            std::tuple<NakedUserProvidedArgs...> user_provided_args{std::move(params)...};
             // These are unused if they are 0-arg tuples. Silence the unused-variable warnings anyway.
             (void)injected_args;
             (void)user_provided_args;
@@ -570,8 +570,8 @@ struct PreProcessRegisterConstructor {
     using CDeps = NormalizeTypeVector(AnnotatedArgs);
     using CNonConstDeps = NormalizedNonConstTypesIn(AnnotatedArgs);
     using R = AddProvidedType(Comp, AnnotatedC, Bool<true>, CDeps, CNonConstDeps);
-    using type = If(
-        Not(IsValidSignature(AnnotatedSignature)), ConstructError(NotASignatureErrorTag, AnnotatedSignature),
+    using type = If(Not(IsValidSignature(AnnotatedSignature)), ConstructError(NotASignatureErrorTag, AnnotatedSignature),
+        If(Not(IsSame(RemoveAssisted(Args), Args)), ConstructError(AssistedParamInRegisterConstructorSignatureErrorTag, AnnotatedSignature),
         PropagateError(CheckInjectableType(RemoveAnnotations(C)),
                        PropagateError(CheckInjectableTypeVector(RemoveAnnotationsFromVector(Args)),
                                       If(IsAbstract(RemoveAnnotations(SignatureType(AnnotatedSignature))),
@@ -579,7 +579,7 @@ struct PreProcessRegisterConstructor {
                                                         RemoveAnnotations(SignatureType(AnnotatedSignature))),
                                          If(Not(IsConstructibleWithVector(C, Args)),
                                             ConstructError(NoConstructorMatchingInjectSignatureErrorTag, C, Signature),
-                                            PropagateError(R, ComponentFunctorIdentity(R)))))));
+                                            PropagateError(R, ComponentFunctorIdentity(R))))))));
   };
 };
 
