@@ -43,9 +43,9 @@ private:
 
 public:
   ComponentStorage() = default;
-  explicit ComponentStorage(FixedSizeVector<ComponentStorageEntry>&& entries) noexcept;
+  ComponentStorage(FixedSizeVector<ComponentStorageEntry>&& entries);
   ComponentStorage(const ComponentStorage&);
-  ComponentStorage(ComponentStorage&&) noexcept;
+  ComponentStorage(ComponentStorage&&);
 
   ~ComponentStorage();
 
@@ -54,7 +54,7 @@ public:
   std::size_t numEntries() const;
 
   ComponentStorage& operator=(const ComponentStorage&);
-  ComponentStorage& operator=(ComponentStorage&&) noexcept;
+  ComponentStorage& operator=(ComponentStorage&&);
 };
 
 } // namespace impl

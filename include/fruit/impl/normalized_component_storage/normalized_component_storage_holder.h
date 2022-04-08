@@ -45,8 +45,7 @@ public:
   struct WithUndoableCompression {};
   struct WithPermanentCompression {};
 
-  NormalizedComponentStorageHolder() noexcept = default;
-
+  NormalizedComponentStorageHolder() = default;
 
   /**
    * The MemoryPool is only used during construction, the constructed object *can* outlive the memory pool.
@@ -63,7 +62,7 @@ public:
 
   // We don't use the default destructor because that would require the inclusion of
   // normalized_component_storage.h. We define this in the cpp file instead.
-  ~NormalizedComponentStorageHolder() noexcept;
+  ~NormalizedComponentStorageHolder();
 };
 
 } // namespace impl

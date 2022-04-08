@@ -18,7 +18,9 @@
 
 #include <fruit/impl/data_structures/memory_pool.h>
 
-void fruit::impl::MemoryPool::destroy() {
+using namespace fruit::impl;
+
+void MemoryPool::destroy() {
   for (void* p : allocated_chunks) {
     operator delete(p);
   }

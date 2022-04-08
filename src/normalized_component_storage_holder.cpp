@@ -19,6 +19,9 @@
 #include <fruit/impl/normalized_component_storage/normalized_component_storage.h>
 #include <fruit/impl/normalized_component_storage/normalized_component_storage_holder.h>
 
+using namespace fruit;
+using namespace fruit::impl;
+
 namespace fruit {
 namespace impl {
 
@@ -28,7 +31,7 @@ NormalizedComponentStorageHolder::NormalizedComponentStorageHolder(
     : storage(new NormalizedComponentStorage(std::move(component), exposed_types, memory_pool,
                                              NormalizedComponentStorage::WithUndoableCompression())) {}
 
-NormalizedComponentStorageHolder::~NormalizedComponentStorageHolder() noexcept {}
+NormalizedComponentStorageHolder::~NormalizedComponentStorageHolder() {}
 
 } // namespace impl
 } // namespace fruit

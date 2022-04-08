@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import itertools
-from typing import List
-
 import networkx as nx
 
-def generate_files(injection_graph: nx.DiGraph, use_new_delete: bool, use_interfaces: bool, generate_runtime_bench_code: bool):
+def generate_files(injection_graph, use_new_delete, use_interfaces, generate_runtime_bench_code):
     file_content_by_name = dict()
 
-    for node_id in injection_graph.nodes:
-        deps = list(injection_graph.successors(node_id))
+    for node_id in injection_graph.nodes_iter():
+        deps = injection_graph.successors(node_id)
         if use_interfaces:
             file_content_by_name['class%s_interface.h' % node_id] = _generate_class_interface_header(node_id)
             file_content_by_name['class%s.h' % node_id] = _generate_class_header_with_interfaces(node_id, deps)
@@ -33,7 +31,7 @@ def generate_files(injection_graph: nx.DiGraph, use_new_delete: bool, use_interf
 
     return file_content_by_name
 
-def _generate_class_interface_header(class_index: int):
+def _generate_class_interface_header(class_index):
     template = """
 #ifndef CLASS{class_index}_INTERFACE_H
 #define CLASS{class_index}_INTERFACE_H
@@ -50,7 +48,7 @@ struct Interface{class_index} {{
 """
     return template.format(**locals())
 
-def _generate_class_header_with_interfaces(class_index: int, deps: List[int]):
+def _generate_class_header_with_interfaces(class_index, deps):
     include_directives = ''.join('#include "class%s_interface.h"\n' % index
                                  for index in itertools.chain(deps, (class_index,)))
     fields = ''.join('Interface%s& x%s;\n' % (index, index)
@@ -77,7 +75,7 @@ struct Class{class_index} : public Interface{class_index} {{
 """
     return template.format(**locals())
 
-def _generate_class_header_without_interfaces(class_index: int, deps: List[int]):
+def _generate_class_header_without_interfaces(class_index, deps):
     include_directives = ''.join('#include "class%s.h"\n' % index
                                  for index in deps)
     fields = ''.join('Class%s& x%s;\n' % (index, index)
@@ -103,7 +101,7 @@ struct Class{class_index} {{
 """
     return template.format(**locals())
 
-def _generate_class_cpp_file_with_interfaces(class_index: int, deps: List[int]):
+def _generate_class_cpp_file_with_interfaces(class_index, deps):
     constructor_params = ', '.join('Interface%s& x%s' % (index, index)
                                    for index in deps)
     field_initializers = ', '.join('x%s(x%s)' % (index, index)
@@ -129,7 +127,7 @@ Class{class_index}::~Class{class_index}() {{
 """
     return template.format(**locals())
 
-def _generate_class_cpp_file_without_interfaces(class_index: int, deps: List[int]):
+def _generate_class_cpp_file_without_interfaces(class_index, deps):
     constructor_params = ', '.join('Class%s& x%s' % (index, index)
                                    for index in deps)
     field_initializers = ', '.join('x%s(x%s)' % (index, index)
@@ -147,14 +145,14 @@ Class{class_index}::Class{class_index}({constructor_params})
     return template.format(**locals())
 
 
-def _generate_main(injection_graph: nx.DiGraph, use_interfaces: bool, use_new_delete: bool, generate_runtime_bench_code: bool):
+def _generate_main(injection_graph, use_interfaces, use_new_delete, generate_runtime_bench_code):
     [toplevel_class_index] = [node_id
-                              for node_id in injection_graph.nodes
-                              if not any(True for p in injection_graph.predecessors(node_id))]
+                              for node_id in injection_graph.nodes_iter()
+                              if not injection_graph.predecessors(node_id)]
 
     if use_interfaces:
         include_directives = ''.join('#include "class%s.h"\n' % index
-                                     for index in injection_graph.nodes)
+                                     for index in injection_graph.nodes_iter())
     else:
         include_directives = '#include "class%s.h"\n' % toplevel_class_index
 
@@ -173,7 +171,7 @@ def _generate_main(injection_graph: nx.DiGraph, use_interfaces: bool, use_new_de
                                      for class_index in reversed(list(nx.topological_sort(injection_graph))))
 
     void_casts = ''.join('(void) x%s;\n' % index
-                         for index in injection_graph.nodes)
+                         for index in injection_graph.nodes_iter())
 
     if generate_runtime_bench_code:
         template = """

@@ -89,10 +89,10 @@ public:
   FixedSizeAllocator() = default;
 
   // Constructs an allocator for the type set in FixedSizeAllocatorData.
-  explicit FixedSizeAllocator(const FixedSizeAllocatorData& allocator_data);
+  FixedSizeAllocator(FixedSizeAllocatorData allocator_data);
 
-  FixedSizeAllocator(FixedSizeAllocator&&) noexcept;
-  FixedSizeAllocator& operator=(FixedSizeAllocator&&) noexcept;
+  FixedSizeAllocator(FixedSizeAllocator&&);
+  FixedSizeAllocator& operator=(FixedSizeAllocator&&);
 
   FixedSizeAllocator(const FixedSizeAllocator&) = delete;
   FixedSizeAllocator& operator=(const FixedSizeAllocator&) = delete;

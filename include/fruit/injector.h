@@ -48,7 +48,7 @@ template <typename... P>
 class Injector {
 public:
   // Moving injectors is allowed.
-  Injector(Injector&&) noexcept = default;
+  Injector(Injector&&) = default;
 
   // Copying injectors is forbidden.
   Injector(const Injector&) = delete;
@@ -79,7 +79,7 @@ public:
    * Foo* foo = injector.get<Foo*>();
    */
   template <typename... FormalArgs, typename... Args>
-  explicit Injector(Component<P...> (*)(FormalArgs...), Args&&... args);
+  Injector(Component<P...> (*)(FormalArgs...), Args&&... args);
 
   /**
    * This creates an injector from a normalized component and a component function.
