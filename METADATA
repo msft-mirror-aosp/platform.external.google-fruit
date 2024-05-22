@@ -9,12 +9,12 @@ third_party {
   last_upgrade_date {
     year: 2024
     month: 5
-    day: 21
+    day: 22
   }
   homepage: "https://github.com/google/fruit"
   identifier {
     type: "Git"
     value: "https://github.com/google/fruit.git"
-    version: "v3.7.1"
+    version: "dab5bdfe01eb9f90a2b688c7f3be177a9bd8d5c6"
   }
 }
