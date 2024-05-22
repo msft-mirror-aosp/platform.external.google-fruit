@@ -359,6 +359,84 @@ class TestRegisterFactory(parameterized.TestCase):
             COMMON_DEFINITIONS,
             source)
 
+    def test_autoinject_moveonly_ref(self):
+        source = '''
+            struct Bar {
+              Bar() = default;
+    
+              Bar(const Bar&) = delete;
+              Bar(Bar&&) = default;
+              Bar& operator=(const Bar&) = delete;
+              Bar& operator=(Bar&&) = default;
+            };
+    
+            struct Foo {
+              Foo(Bar&& bar) {
+                Bar b(std::move(bar));
+                (void)b;
+              }
+            };
+    
+            using FooFactory = std::function<Foo(Bar&&)>;
+    
+            fruit::Component<FooFactory> getComponent() {
+              return fruit::createComponent()
+                  .registerFactory<Foo(fruit::Assisted<Bar&&>)>(
+                      [](Bar&& bar) {
+                        return Foo(std::move(bar));
+                      });
+            }
+    
+            int main() {
+              fruit::Injector<FooFactory> injector(getComponent);
+              FooFactory fooFactory(injector);
+              Foo foo = fooFactory(Bar());
+              (void)foo;
+            }
+            '''
+        expect_success(
+            COMMON_DEFINITIONS,
+            source)
+
+    def test_autoinject_nonmovable_ref(self):
+        source = '''
+            struct Bar {
+              Bar() = default;
+    
+              Bar(const Bar&) = delete;
+              Bar(Bar&&) = delete;
+              Bar& operator=(const Bar&) = delete;
+              Bar& operator=(Bar&&) = delete;
+            };
+    
+            struct Foo {
+              Foo(Bar& bar) {
+                (void)bar;
+              }
+            };
+    
+            using FooFactory = std::function<Foo(Bar&)>;
+    
+            fruit::Component<FooFactory> getComponent() {
+              return fruit::createComponent()
+                  .registerFactory<Foo(fruit::Assisted<Bar&>)>(
+                      [](Bar& bar) {
+                        return Foo(bar);
+                      });
+            }
+    
+            int main() {
+              fruit::Injector<FooFactory> injector(getComponent);
+              FooFactory fooFactory(injector);
+              Bar bar;
+              Foo foo = fooFactory(bar);
+              (void)foo;
+            }
+            '''
+        expect_success(
+            COMMON_DEFINITIONS,
+            source)
+
     def test_autoinject_2_assisted_params(self):
         source = '''
             struct Foo {
@@ -382,6 +460,38 @@ class TestRegisterFactory(parameterized.TestCase):
               fruit::Injector<FooFactory> injector(getComponent);
               FooFactory fooFactory(injector);
               Foo foo = fooFactory(1, 2.3f);
+              (void)foo;
+            }
+            '''
+        expect_success(
+            COMMON_DEFINITIONS,
+            source)
+
+    def test_autoinject_assisted_params_ref(self):
+        source = '''
+            struct Foo {
+              Foo(int x, float y, char z) {
+                (void)x;
+                (void)y;
+                (void)z;
+              }
+            };
+    
+            using FooFactory = std::function<Foo(int&, float&&, char)>;
+    
+            fruit::Component<FooFactory> getComponent() {
+              return fruit::createComponent()
+                  .registerFactory<Foo(fruit::Assisted<int&>, fruit::Assisted<float&&>, fruit::Assisted<char>)>(
+                      [](int& x, float&& y, char z) {
+                        return Foo(x, std::move(y), z);
+                      });
+            }
+    
+            int main() {
+              fruit::Injector<FooFactory> injector(getComponent);
+              FooFactory fooFactory(injector);
+              int x = 1;
+              Foo foo = fooFactory(x, 2.3f, 'z');
               (void)foo;
             }
             '''
