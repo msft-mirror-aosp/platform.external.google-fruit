@@ -42,6 +42,26 @@ gcc-10)
     export CXX=g++-10
     ;;
 
+gcc-11)
+    export CC=gcc-11
+    export CXX=g++-11
+    ;;
+
+gcc-12)
+    export CC=gcc-12
+    export CXX=g++-12
+    ;;
+
+gcc-13)
+    export CC=gcc-13
+    export CXX=g++-13
+    ;;
+
+gcc-14)
+    export CC=gcc-14
+    export CXX=g++-14
+    ;;
+
 clang-3.5)
     export CC=clang-3.5
     export CXX=clang++-3.5
@@ -105,6 +125,41 @@ clang-10.0)
 clang-11.0)
     export CC=clang-11
     export CXX=clang++-11
+    ;;
+
+clang-12.0)
+    export CC=clang-12
+    export CXX=clang++-12
+    ;;
+
+clang-13.0)
+    export CC=clang-13
+    export CXX=clang++-13
+    ;;
+
+clang-14.0)
+    export CC=clang-14
+    export CXX=clang++-14
+    ;;
+
+clang-15.0)
+    export CC=clang-15
+    export CXX=clang++-15
+    ;;
+
+clang-16.0)
+    export CC=clang-16
+    export CXX=clang++-16
+    ;;
+
+clang-17.0)
+    export CC=clang-17
+    export CXX=clang++-17
+    ;;
+
+clang-18.0)
+    export CC=clang-18
+    export CXX=clang++-18
     ;;
 
 clang-default)
@@ -192,10 +247,7 @@ then
     cd tests
     run_make
 
-    # We specify the path explicitly because old versions of pytest (e.g. the one in Ubuntu 14.04)
-    # don't support the testpaths setting in pytest.ini, so they will ignore it and they would
-    # otherwise run no tests.
-    py.test -n auto -r a "$SOURCES_PATH"/tests
+    python3 -m pytest -n auto -r a "$SOURCES_PATH"/tests
     cd ..
 
     make install
