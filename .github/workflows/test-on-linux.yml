@@ -14,9 +14,46 @@ on:
     # Run at 8:13 on the 1st day of each month
     - cron:  '13 8 1 * *'
 jobs:
-  Ubuntu-22-10:
+  Ubuntu-24-10:
     runs-on: ubuntu-latest
-    container: polettimarco/fruit-basesystem:ubuntu-22.10
+    container: polettimarco/fruit-basesystem:ubuntu-24.10
+    env:
+      N_JOBS: 2
+      ASAN_OPTIONS: ""
+      OS: "linux"
+      COMPILER: ${{ matrix.config.compiler }}
+      STLARG: ${{ matrix.config.stlarg }}
+      CXX_STANDARD: ${{ matrix.config.cxx_standard }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: test
+        run: extras/scripts/postsubmit-helper.sh ${{ matrix.config.test }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled && failure() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, cxx_standard: 23, test: ReleasePlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, cxx_standard: 23, test: DebugPlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, cxx_standard: 23, test: DebugAsanUbsan}
+          - {compiler: gcc-14, test: ReleasePlain}
+          - {compiler: gcc-14, test: DebugPlain}
+          - {compiler: gcc-14, test: DebugAsanUbsan}
+          - {compiler: clang-14.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
+          - {compiler: clang-14.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
+          # clang-14 has issues in the DebugAsanUbsan configuration
+          - {compiler: clang-16.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
+          - {compiler: gcc-11, test: ReleasePlain}
+          - {compiler: gcc-11, test: DebugAsanUbsan}
+
+  Ubuntu-24-04:
+    runs-on: ubuntu-latest
+    container: polettimarco/fruit-basesystem:ubuntu-24.04
     env:
       N_JOBS: 2
       ASAN_OPTIONS: ""
@@ -34,16 +71,15 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
           - {compiler: gcc-12, test: ReleasePlain}
-          - {compiler: gcc-12, test: DebugPlain}
           - {compiler: gcc-12, test: DebugAsanUbsan}
-          - {compiler: clang-11.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
-          - {compiler: clang-11.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
-          # clang-11 has issues in the DebugAsanUbsan configuration
-          - {compiler: clang-13.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
+          - {compiler: clang-14.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
+          - {compiler: clang-14.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
+          # clang-14 has issues in the DebugAsanUbsan configuration
+          - {compiler: clang-14.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
           - {compiler: gcc-9, test: ReleasePlain}
           - {compiler: gcc-9, test: DebugAsanUbsan}
 
@@ -67,9 +103,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
-          - {compiler: clang-15.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugPlain}
+          - {compiler: clang-19.0, stlarg: -stdlib=libstdc++, test: DebugAsanUbsan}
           - {compiler: gcc-12, test: ReleasePlain}
           - {compiler: gcc-12, test: DebugAsanUbsan}
           - {compiler: clang-11.0, stlarg: -stdlib=libstdc++, test: ReleasePlain}
