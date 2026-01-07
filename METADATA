@@ -8,13 +8,13 @@ third_party {
   license_type: NOTICE
   last_upgrade_date {
     year: 2025
-    month: 5
-    day: 22
+    month: 12
+    day: 29
   }
   homepage: "https://github.com/google/fruit"
   identifier {
     type: "Git"
     value: "https://github.com/google/fruit.git"
-    version: "19f5c05466565ef507a196b33de08f1c96dd0e58"
+    version: "45cc0583a170bc29a41e02e10911b1dee699c60c"
   }
 }
